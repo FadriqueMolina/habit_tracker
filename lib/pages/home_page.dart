@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:habit_tracker/components/my_alert_dialog.dart';
 import 'package:habit_tracker/components/my_floating_button.dart';
 import 'package:habit_tracker/components/my_habit_tile.dart';
+import 'package:habit_tracker/data/database.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,14 +15,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TextEditingController habitNameController = TextEditingController();
 
-  final List<Map<String, bool>> listOfHabits = [];
+  final HabitDataBase db = HabitDataBase();
+  final _box = Hive.box(HabitDataBase.dbName);
+
+  @override
+  void initState() {
+    if (_box.get(HabitDataBase.habitsEntry) == null) {
+      db.createInitialData();
+    } else {
+      db.loadData();
+    }
+
+    super.initState();
+  }
 
   void onHabitCheckMarkTapped(bool? value, int index) {
     //Get the name of the habit so we can update the value (Boolean).
-    String habitName = listOfHabits[index].keys.first;
+    String habitName = db.listOfHabits[index].keys.first;
     setState(() {
-      listOfHabits[index][habitName] = value!;
+      db.listOfHabits[index][habitName] = value!;
     });
+    db.updateDataBase();
   }
 
   void addHabitFloatingButtonPressed() {
@@ -37,10 +52,11 @@ class _HomePageState extends State<HomePage> {
 
   void onAddHabitAccepted() {
     setState(() {
-      listOfHabits.add({habitNameController.text: false});
+      db.listOfHabits.add({habitNameController.text: false});
     });
     Navigator.pop(context);
     habitNameController.clear();
+    db.updateDataBase();
   }
 
   void onAddHabitCancelled() {
@@ -61,33 +77,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   void onModifyHabit(BuildContext context, int index) {
-    String habitName = listOfHabits[index].keys.first;
+    String habitName = db.listOfHabits[index].keys.first;
     setState(() {
-      listOfHabits[index] = {
-        habitNameController.text: listOfHabits[index][habitName]!
+      db.listOfHabits[index] = {
+        habitNameController.text: db.listOfHabits[index][habitName]!
       };
     });
     Navigator.pop(context);
     habitNameController.clear();
+    db.updateDataBase();
   }
 
   void onDeleteHabitTile(BuildContext context, int index) {
     setState(() {
-      listOfHabits.removeAt(index);
+      db.listOfHabits.removeAt(index);
     });
+    db.updateDataBase();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      body: listOfHabits.isEmpty
+      body: db.listOfHabits.isEmpty
           ? const Center(child: Text("The list is empty."))
           : ListView.builder(
               shrinkWrap: true,
-              itemCount: listOfHabits.length,
+              itemCount: db.listOfHabits.length,
               itemBuilder: (context, index) {
-                var habit = listOfHabits[index];
+                var habit = db.listOfHabits[index];
                 return MyHabitTile(
                   index: index,
                   title: habit.keys.first,
