@@ -81,21 +81,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      body: ListView.builder(
-        shrinkWrap: true,
-        itemCount: listOfHabits.length,
-        itemBuilder: (context, index) {
-          var habit = listOfHabits[index];
-          return MyHabitTile(
-            index: index,
-            title: habit.keys.first,
-            completed: habit.values.first,
-            onChecked: (value) => onHabitCheckMarkTapped(value, index),
-            onModify: (p0, p1) => onModifyHabitTile(context, index),
-            onDelete: (p0, p1) => onDeleteHabitTile(context, index),
-          );
-        },
-      ),
+      body: listOfHabits.isEmpty
+          ? const Center(child: Text("The list is empty."))
+          : ListView.builder(
+              shrinkWrap: true,
+              itemCount: listOfHabits.length,
+              itemBuilder: (context, index) {
+                var habit = listOfHabits[index];
+                return MyHabitTile(
+                  index: index,
+                  title: habit.keys.first,
+                  completed: habit.values.first,
+                  onChecked: (value) => onHabitCheckMarkTapped(value, index),
+                  onModify: (p0, p1) => onModifyHabitTile(context, index),
+                  onDelete: (p0, p1) => onDeleteHabitTile(context, index),
+                );
+              },
+            ),
       floatingActionButton: MyFloatingButton(
         onPressed: addHabitFloatingButtonPressed,
       ),

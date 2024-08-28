@@ -20,27 +20,31 @@ class MyHabitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Slidable(
-      endActionPane: ActionPane(motion: const ScrollMotion(), children: [
-        SlidableAction(
-          onPressed: (context) => onModify!(context, index),
-          icon: Icons.settings,
-          backgroundColor: Colors.grey,
-        ),
-        SlidableAction(
-          onPressed: (context) => onDelete!(context, index),
-          icon: Icons.delete,
-          backgroundColor: Colors.red,
-        ),
-      ]),
-      child: habitTile(),
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+      child: Slidable(
+        endActionPane: ActionPane(motion: const StretchMotion(), children: [
+          SlidableAction(
+            onPressed: (context) => onModify!(context, index),
+            icon: Icons.settings,
+            backgroundColor: Colors.grey,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          SlidableAction(
+            onPressed: (context) => onDelete!(context, index),
+            icon: Icons.delete,
+            backgroundColor: Colors.red,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ]),
+        child: habitTile(),
+      ),
     );
   }
 
   Container habitTile() {
     return Container(
-      padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(10),
@@ -48,7 +52,16 @@ class MyHabitTile extends StatelessWidget {
       child: Row(
         children: [
           Checkbox(value: completed, onChanged: onChecked),
-          Text(title)
+          Text(
+            title,
+            style: completed
+                ? const TextStyle(
+                    color: Colors.grey,
+                    decoration: TextDecoration.lineThrough,
+                    decorationColor: Colors.grey,
+                    decorationThickness: 2)
+                : const TextStyle(color: Colors.black),
+          )
         ],
       ),
     );
